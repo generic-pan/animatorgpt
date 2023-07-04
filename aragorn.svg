@@ -1,0 +1,11 @@
+<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" width=""800"" height=""600"">
+  <image xlink:href=""aragorn.png"" x=""0"" y=""250"" width=""200"" height=""300"">
+    <animateTransform attributeName=""transform"" attributeType=""XML"" type=""translate"" values=""0 0; 400 0; 400 0"" keyTimes=""0; 0.5; 1"" dur=""3s"" repeatCount=""1""/>
+  </image>
+  <image xlink:href=""sword.png"" x=""400"" y=""250"" width=""200"" height=""200"">
+    <animateTransform attributeName=""transform"" attributeType=""XML"" type=""translate"" values=""0 0; -400 0; -800 0"" keyTimes=""0; 0.5; 1"" dur=""3s"" repeatCount=""1""/>
+  </image>
+  <image xlink:href=""demon.png"" x=""700"" y=""250"" width=""200"" height=""300"">
+    <animateTransform attributeName=""transform"" attributeType=""XML"" type=""translate"" values=""0 0; -700 0; -700 0"" keyTimes=""0; 0.5; 1"" dur=""3s"" repeatCount=""1""/>
+  </image>
+</svg>

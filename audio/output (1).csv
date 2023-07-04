@@ -1,0 +1,172 @@
+voiceline,simplified,cue,svg_0,svg_1,svg_2,chosen_svg
+The woman was fighting a demon when Aragon came.,"The woman moving backwards, fighting a demon.",The [woman.png] moves backwards from the right side of the screen while engaged in a battle with the [demon.png].,"<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" width=""800"" height=""600"">
+  <style>
+    .woman {
+      animation: moveWoman 5s linear infinite;
+    }
+    
+    .demon {
+      animation: moveDemon 5s linear infinite;
+    }
+    
+    @keyframes moveWoman {
+      0% {
+        transform: translateX(100%);
+      }
+      100% {
+        transform: translateX(0%);
+      }
+    }
+    
+    @keyframes moveDemon {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(0%);
+      }
+    }
+  </style>
+  
+  <image class=""woman"" xlink:href=""woman.png"" width=""200"" height=""200"" x=""600"" y=""200"" />
+  <image class=""demon"" xlink:href=""demon.png"" width=""200"" height=""200"" x=""0"" y=""200"" />
+</svg>","<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" viewBox=""0 0 800 600"">
+  <style>
+    .woman {
+      animation: moveBackwards 5s infinite;
+    }
+    
+    @keyframes moveBackwards {
+      0% {
+        transform: translateX(800px);
+      }
+      100% {
+        transform: translateX(0px);
+      }
+    }
+  </style>
+  
+  <image class=""woman"" xlink:href=""woman.png"" x=""0"" y=""0"" width=""200"" height=""200""/>
+  <image xlink:href=""demon.png"" x=""600"" y=""200"" width=""200"" height=""200""/>
+</svg>
+","<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" width=""800"" height=""600"">
+    <image xlink:href=""The woman.png"" x=""800"" y=""250"" width=""200"" height=""300"" id=""woman"" />
+    <image xlink:href=""the demon.png"" x=""400"" y=""250"" width=""200"" height=""300"" id=""demon"" />
+    <animate xlink:href=""#woman"" attributeName=""x"" from=""800"" to=""-200"" dur=""5s"" repeatCount=""indefinite"" />
+</svg>
+",1
+She had a book in her hand and was casting spells.,"Woman moving her hand, casting spells.",[hand.png] moves in front of [woman.png] as she gestures and casts spells.,"<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" viewBox=""0 0 800 600"">
+
+  <!-- Define the images -->
+  <image xlink:href=""woman.png"" x=""0"" y=""0"" width=""400"" height=""600""/>
+  <image xlink:href=""hand.png"" x=""0"" y=""0"" width=""200"" height=""200"">
+    <animateMotion dur=""5s"" repeatCount=""indefinite"">
+      <mpath xlink:href=""#motionPath""/>
+    </animateMotion>
+  </image>
+
+  <!-- Define the motion path -->
+  <path id=""motionPath"" d=""M100,300 C300,100 500,100 700,300 C900,500 700,700 500,700 C300,700 100,500 100,300 Z"" fill=""none""/>
+
+  <!-- Define the woman's gestures and spell casting -->
+  <!-- Add your desired gestures and spell casting animations here -->
+
+</svg>","<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" width=""800px"" height=""600px"" viewBox=""0 0 800 600"">
+    <image xlink:href=""woman.png"" x=""0"" y=""0"" width=""400"" height=""600"" />
+    <image xlink:href=""hand.png"" x=""400"" y=""0"" width=""400"" height=""600"" style=""opacity:0;"">
+        <animate id=""handAnimation"" attributeName=""style"" attributeType=""CSS"" from=""opacity:0;"" to=""opacity:1;"" begin=""0s; spellAnimation.end"" dur=""1s"" fill=""freeze"" />
+        <animateMotion id=""handMotion"" dur=""10s"" repeatCount=""indefinite"">
+            <mpath xlink:href=""#motionPath"" />
+        </animateMotion>
+    </image>
+    <path id=""motionPath"" d=""M400,300 C500,150 700,150 800,300 C900,450 700,450 600,300 C500,150 300,150 200,300 C100,450 300,450 400,300"" style=""fill:none;""/>
+    <g id=""spellAnimation"">
+        <!-- Add your spell animation here -->
+    </g>
+</svg>
+","<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" width=""800px"" height=""600px"">
+  <image xlink:href=""woman.png"" width=""400"" height=""400"" x=""200"" y=""100"" />
+  <image xlink:href=""hand.png"" width=""200"" height=""200"" x=""400"" y=""200"" opacity=""0"">
+    <animate id=""handAnimation"" attributeName=""opacity"" from=""0"" to=""1"" begin=""0s; gestureAnimation.end"" dur=""1s"" fill=""freeze"" />
+    <animate id=""gestureAnimation"" attributeName=""x"" from=""400"" to=""600"" begin=""handAnimation.end"" dur=""2s"" fill=""freeze"" />
+    <animate attributeName=""opacity"" from=""1"" to=""0"" begin=""gestureAnimation.end"" dur=""1s"" fill=""freeze"" />
+  </image>
+</svg>
+",2
+Aragorn grabbed his sword and threw it at the demon.,"Aragorn moving his arm, throwing his sword at the demon.","[aragorn.png] moves his arm from the right side of the screen and throws [sword.png] towards the left side of the screen, aiming at [demon.png].","<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" width=""800"" height=""600"">
+  <image xlink:href=""aragorn.png"" x=""0"" y=""250"" width=""200"" height=""300"">
+    <animateTransform attributeName=""transform"" attributeType=""XML"" type=""translate"" values=""0 0; 400 0; 400 0"" keyTimes=""0; 0.5; 1"" dur=""3s"" repeatCount=""1""/>
+  </image>
+  <image xlink:href=""sword.png"" x=""400"" y=""250"" width=""200"" height=""200"">
+    <animateTransform attributeName=""transform"" attributeType=""XML"" type=""translate"" values=""0 0; -400 0; -800 0"" keyTimes=""0; 0.5; 1"" dur=""3s"" repeatCount=""1""/>
+  </image>
+  <image xlink:href=""demon.png"" x=""700"" y=""250"" width=""200"" height=""300"">
+    <animateTransform attributeName=""transform"" attributeType=""XML"" type=""translate"" values=""0 0; -700 0; -700 0"" keyTimes=""0; 0.5; 1"" dur=""3s"" repeatCount=""1""/>
+  </image>
+</svg>","<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" width=""800"" height=""400"" viewBox=""0 0 800 400"">
+
+  <!-- Define the images -->
+  <image xlink:href=""aragorn.png"" x=""0"" y=""150"" width=""150"" height=""200"" id=""aragorn"" />
+  <image xlink:href=""sword.png"" x=""700"" y=""150"" width=""100"" height=""100"" id=""sword"" />
+  <image xlink:href=""demon.png"" x=""350"" y=""150"" width=""150"" height=""200"" id=""demon"" />
+
+  <!-- Animate Aragorn's arm movement -->
+  <animateTransform xlink:href=""#aragorn"" attributeName=""transform"" attributeType=""XML""
+    type=""translate"" from=""0 0"" to=""400 0"" dur=""2s"" begin=""0s"" fill=""freeze"" />
+
+  <!-- Animate the sword's throw -->
+  <animateTransform xlink:href=""#sword"" attributeName=""transform"" attributeType=""XML""
+    type=""translate"" from=""0 0"" to=""-700 0"" dur=""2s"" begin=""0s"" fill=""freeze"" />
+
+</svg>
+","<svg xmlns=""http://www.w3.org/2000/svg"" xmlns:xlink=""http://www.w3.org/1999/xlink"" width=""800"" height=""600"">
+  <image xlink:href=""aragorn.png"" x=""0"" y=""200"" width=""200"" height=""200"" id=""aragorn"" />
+  <image xlink:href=""sword.png"" x=""800"" y=""300"" width=""100"" height=""100"" id=""sword"" visibility=""hidden"" />
+  <image xlink:href=""demon.png"" x=""600"" y=""200"" width=""200"" height=""200"" id=""demon"" />
+  
+  <animate
+    xlink:href=""#aragorn""
+    attributeName=""x""
+    from=""0""
+    to=""600""
+    dur=""3s""
+    fill=""freeze""
+  />
+  
+  <animate
+    xlink:href=""#sword""
+    attributeName=""x""
+    from=""800""
+    to=""400""
+    dur=""1s""
+    begin=""2s""
+    fill=""freeze""
+    calcMode=""spline""
+    keyTimes=""0; 1""
+    keySplines=""0 0 1 1""
+  />
+  
+  <animate
+    xlink:href=""#sword""
+    attributeName=""y""
+    from=""300""
+    to=""250""
+    dur=""1s""
+    begin=""2s""
+    fill=""freeze""
+    calcMode=""spline""
+    keyTimes=""0; 1""
+    keySplines=""0 0 1 1""
+  />
+  
+  <animate
+    xlink:href=""#sword""
+    attributeName=""visibility""
+    from=""hidden""
+    to=""visible""
+    dur=""0.1s""
+    begin=""2s""
+    fill=""freeze""
+  />
+</svg>
+",1

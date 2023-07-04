@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Audio Player and Animations</title>
+  <style>
+    #animation-box-0,
+    #animation-box-1,
+    #animation-box-2 {
+      position: relative;
+      display: inline-block;
+      width: 800px;
+      height: 600px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+    }
+    
+    .selected-animation {
+      border: 4px solid black;
+    }
+    #next-button, #previous-button, #preview-button {
+      width: 200px;
+      height: 100px;
+    }
+
+    #voiceline-input, #image-input, #cue-input {
+      font-size: 50px;
+    }
+
+    button {
+      font-size: 30px;
+    }
+    
+  </style>
+</head>
+<body>
+  <h1 id="current-voiceline">Voiceline: </h1>
+  <button id="previous-button">Previous</button>
+  <button id="next-button">Next</button>
+  <audio id="audio-player" controls></audio>
+  <button id="preview-button">Large Preview: Off</button> <!-- Toggle button -->
+
+  <div id="animation-container">
+    <div class="animation-box" id="animation-box-0"></div>
+    <div class="animation-box" id="animation-box-1"></div>
+    <div class="animation-box" id="animation-box-2"></div>
+  </div>
+
+  <form id="voiceline-form">
+    <label for="voiceline-input">Voiceline:</label>
+    <input type="text" id="voiceline-input" size="50">
+    <button type="submit">Submit</button>
+  </form>
+
+  <form id="image-form">
+    <label for="image-input">Query:</label>
+    <input type="text" id="image-input" size="50">
+    <button type="submit">Submit</button>
+  </form>
+
+  <form id="cue-form">
+    <label for="cue-input">Cue:</label>
+    <input type="text" id="cue-input" size="50">
+    <button type="submit">Submit</button>
+  </form>
+
+  <div id="export-container">
+    <button id="export-button">Export to CSV</button>
+  </div>
+
+  <div id="gallery"></div>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    // Load the input.csv data
+    fetch('info.csv')
+      .then(response => response.text())
+      .then(csv => processCSV(csv));
+
+
+      function createAudio(transcript, filename) {
+        const file_id = filename;
+        const CHUNK_SIZE = 1024;
+        const url = "https://api.elevenlabs.io/v1/text-to-speech/ErXwobaYiN019PkySvjV";
+  
+        const headers = {
+          "Accept": "audio/mpeg",
+          "Content-Type": "application/json",
+          "xi-api-key": "bbb2aa295ef02f6870289de2131de6b1"
+        };
+  
+        const data = {
+          "text": transcript,
+          "model_id": "eleven_monolingual_v1",
+          "voice_settings": {
+            "stability": 0.3,
+            "similarity_boost": 0.75
+          }
+        };
+  
+        axios.post(url, data, { headers, responseType: 'arraybuffer' })
+          .then(response => {
+            const audioData = response.data;
+            const blob = new Blob([audioData], { type: 'audio/mpeg' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${file_id}.mp3`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            setTimeout(() => {
+              const newSource = `audio/${file_id}.mp3`;
+              const audioPlayer = document.getElementById('audio-player');
+              audioPlayer.src = newSource;
+              audioPlayer.load();
+            }, 9000); // Delay in milliseconds (5 seconds = 5000 milliseconds)
+          })
+          .catch(error => {
+            console.error("Error creating audio file:", error);
+          });
+      }
+
+      function createImage(query) {
+        const apiKey = "683d609cf2714346b7271504a0bbb841";
+        const searchEndpoint = "https://api.bing.microsoft.com/v7.0/images/search";
+        const filename = query.replace(/\s+/g, "_") + ".png";
+      
+        const headers = {
+          "Ocp-Apim-Subscription-Key": apiKey,
+        };
+      
+        const params = {
+          q: query,
+          count: 5,
+          imageType: "Transparent"
+        };
+      
+        axios.get(searchEndpoint, { headers, params })
+        .then(response => {
+          const imageArray = response.data.value;
+    
+          imageArray.forEach(imageData => {
+            const imageUrl = imageData.contentUrl;
+    
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.style.width = "220px";
+            document.getElementById('gallery').appendChild(img);
+          });
+        })
+        .catch(error => {
+          console.error("Error searching for the image:", error);
+        });
+      }
+      
+
+
+function processCSV(csv) {
+  Papa.parse(csv, {
+    header: true,
+    dynamicTyping: true,
+    complete: function (results) {
+      const data = results.data;
+        
+      let isPreviewEnabled = false;
+      const voicelineIndex = data[0].voiceline ? 'voiceline' : 'voiceline ';
+      const cueIndex = data[0].cue ? 'cue' : 'cue ';
+      const svg0Index = data[0].svg_0 ? 'svg_0' : 'svg_0 ';
+      const svg1Index = data[0].svg_1 ? 'svg_1' : 'svg_1 ';
+      const svg2Index = data[0].svg_2 ? 'svg_2' : 'svg_2 ';
+
+      const audioPlayer = document.getElementById('audio-player');
+      const animationBox0 = document.getElementById('animation-box-0');
+      const animationBox1 = document.getElementById('animation-box-1');
+      const animationBox2 = document.getElementById('animation-box-2');
+      const voicelineInput = document.getElementById('voiceline-input');
+      const cueInput = document.getElementById('cue-input');
+      const exportButton = document.getElementById('export-button');
+      const currentVoiceline = document.getElementById('current-voiceline');
+
+      let currentIndex = 0;
+      let chosenSvg = data.map(row => row['chosen_svg']);
+
+
+      document.addEventListener('keydown', (event) => {
+        switch (event.code) {
+          case 'ArrowLeft':
+            previousButton.click();
+            break;
+          case 'ArrowRight':
+            nextButton.click();
+            break;
+          case 'Tab':
+            event.preventDefault();
+            if (audioPlayer.paused) {
+              audioPlayer.play();
+            } else {
+              audioPlayer.pause();
+            }
+            break;
+          default:
+            break;
+        }
+      });
+
+
+      const previousButton = document.getElementById('previous-button');
+      const nextButton = document.getElementById('next-button');
+  
+      previousButton.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + data.length) % data.length;
+        updatePlayer();
+        audioPlayer.play();
+      });
+  
+      nextButton.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % data.length;
+        updatePlayer();
+        audioPlayer.play();
+      });
+
+      function recacheAllImages() {
+        var imageElements = document.getElementsByTagName('image');
+        var timestamp = new Date().getTime();
+      
+        for (var i = 0; i < imageElements.length; i++) {
+          var currentSrc = imageElements[i].src;
+          console.log(currentSrc);
+          var newSrc = currentSrc + '?nocache=' + timestamp;
+          imageElements[i].src = newSrc;
+        }
+        var imageElements = document.getElementsByTagName('image');
+        console.log(imageElements);
+        var timestamp = new Date().getTime();
+      
+        for (var i = 0; i < imageElements.length; i++) {
+          var currentHref = imageElements[i].getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+          console.log(currentHref);
+          var newHref = currentHref + '?nocache=' + timestamp;
+          imageElements[i].setAttributeNS('http://www.w3.org/1999/xlink', 'href', newHref);
+        }
+      }
+      
+
+
+      // Update the audio player and animations
+      function updatePlayer() {
+        const voiceline = data[currentIndex][voicelineIndex];
+        const audioFile = `audio/${currentIndex}.mp3`;
+        const svg0 = resizeSVG(data[currentIndex][svg0Index], 800, 600, chosenSvg[currentIndex] === 0);
+        const svg1 = resizeSVG(data[currentIndex][svg1Index], 800, 600, chosenSvg[currentIndex] === 1);
+        const svg2 = resizeSVG(data[currentIndex][svg2Index], 800, 600, chosenSvg[currentIndex] === 2);
+        document.getElementById('gallery').innerHTML = '';
+        console.log("RECACHE");
+        recacheAllImages();
+        audioPlayer.src = audioFile;
+      
+        animationBox0.innerHTML = svg0;
+        animationBox1.innerHTML = svg1;
+        animationBox2.innerHTML = svg2;
+        if(isPreviewEnabled) {
+          // Hides all non chosen svgs, then shows the chosen svg
+          document.querySelectorAll('.animation-box').forEach((box, index) => {
+            if (index !== chosenSvg[currentIndex]) {
+              box.style.display = 'none';
+            } else {
+              box.style.display = 'inline-block';
+            }
+          });
+        }
+      
+        voicelineInput.value = voiceline;
+        cueInput.value = data[currentIndex][cueIndex];
+      
+        currentVoiceline.textContent = `Voiceline ${currentIndex}: ${voiceline}`;
+      }
+      
+      function resizeSVG(svg, width, height, isSelected) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(svg, 'image/svg+xml');
+        const svgElement = doc.documentElement;
+        svgElement.setAttribute('width', width);
+        svgElement.setAttribute('height', height);
+        if (isSelected) {
+          svgElement.style.border = '4px solid black';
+          svgElement.classList.add('chosen');
+        } else {
+          svgElement.style.border = '1px solid #ccc';
+          if ('chosen' in svgElement.classList) {
+            svgElement.classList.add('chosen');
+          }
+        }
+        return svgElement.outerHTML;
+      }
+            
+    
+      // Play audio on page load
+      updatePlayer();
+      audioPlayer.addEventListener('ended', () => {
+        currentIndex = (currentIndex + 1) % data.length;
+        updatePlayer();
+        audioPlayer.play();
+      });
+
+      // Update chosenSvg array when clicking on animations
+      animationBox0.addEventListener('click', () => {
+        chosenSvg[currentIndex] = 0;
+        updatePlayer();
+      });
+      animationBox1.addEventListener('click', () => {
+        chosenSvg[currentIndex] = 1;
+        updatePlayer();
+      });
+      animationBox2.addEventListener('click', () => {
+        chosenSvg[currentIndex] = 2;
+        updatePlayer();
+      });
+
+      const previewButton = document.getElementById('preview-button');
+      const animationContainer = document.getElementById('animation-container');
+  
+      // Toggle the preview on/off
+      previewButton.addEventListener('click', () => {
+        isPreviewEnabled = !isPreviewEnabled;
+        previewButton.textContent = `Large Preview: ${isPreviewEnabled ? 'On' : 'Off'}`;
+  
+        if (isPreviewEnabled) {
+          hideNonChosenAnimations();
+        } else {
+          showAllAnimations();
+        }
+      });
+  
+      function hideNonChosenAnimations() {
+        // Hides all svgs that do not have class 'chosen'
+        for (let i = 0; i < animationContainer.children.length; i++) {
+          const animationBox = animationContainer.children[i];
+          if (!animationBox.children[0].classList.contains('chosen')) {
+            animationBox.style.display = 'none';
+          }
+        }
+      }
+  
+      function showAllAnimations() {
+        // Shows all svgs
+        for (let i = 0; i < animationContainer.children.length; i++) {
+          const animationBox = animationContainer.children[i];
+          animationBox.style.display = 'inline-block';
+        }
+      }
+
+
+
+      // Submit voiceline form
+      document.getElementById('voiceline-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Create audio from voiceline text form text
+        console.log(voicelineIndex);
+        createAudio(document.getElementById('voiceline-input').value, String(currentIndex));
+
+      });
+
+      document.getElementById('image-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        createImage(document.getElementById('image-input').value);
+
+      });
+
+      // Submit cue form
+      document.getElementById('cue-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        console.log('Sad');
+      });
+
+      // Export to CSV
+      exportButton.addEventListener('click', () => {
+        const outputData = data.map((row, i) => {
+          const newRow = { ...row };
+          newRow.chosen_svg = chosenSvg[i];
+          return newRow;
+        });
+
+        const csv = Papa.unparse(outputData);
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'info.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    },
+    error: function (err, file) {
+      console.error('Error parsing CSV file:', err);
+    }
+  });
+}
+
+
+
+  </script>
+</body>
+</html>
