@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sound Effects</title>
+  <style>
+    body {
+      font-size: 32px;
+      margin: 0;
+      padding: 0;
+    }
+    #videoContainer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 70%;
+      height: 70vh;
+      overflow: hidden;
+    }
+    #videoContainer video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    #content {
+      position: relative;
+      padding: 20px;
+      margin-top: 80vh;
+      transform: translateY(-50%);
+    }
+    button {
+      font-size: 16px;
+      padding: 10px;
+    }
+    table {
+      margin-bottom: 20px;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    #progressBars progress {
+      width: 100%;
+    }
+  </style>
+  <script src="https://unpkg.com/papaparse@5.0.0/papaparse.min.js"></script>
+</head>
+<body>
+  <div id="videoContainer">
+    <video id="infoVideo" src="info.mp4" muted></video>
+  </div>
+  <div id="content">
+    <table>
+      <tr>
+        <td><button id="previousBtn">Previous</button></td>
+        <td><button id="playPauseBtn">Play/Pause</button></td>
+        <td><button id="nextBtn">Next</button></td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <input type="range" id="volumeBar" min="0" max="1" step="0.01">
+        </td>
+      </tr>
+      <tr>
+        <td><button id="audioBtn0"></button></td>
+        <td><button id="audioBtn1"></button></td>
+        <td><button id="audioBtn2"></button></td>
+        <td><button id="audioBtn3"></button></td>
+        <td><button id="audioBtn4"></button></td>
+      </tr>
+    </table>
+    <button id="exportBtn">Export</button>
+    <div id="progressBars"></div>
+  </div>
+
+  <script>
+    var currentRow = 0;
+    var audioData = [];
+    var audioElements = [];
+    var progressBars = [];
+    var isPlaying = false;
+    var infoVideo;
+
+    function loadData() {
+      Papa.parse("info_with_audio.csv", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          audioData = results.data;
+          createProgressBars();
+          displayRow(currentRow);
+        }
+      });
+    }
+
+    function displayRow(row) {
+      var rowData = audioData[row];
+
+      var audioButtons = document.querySelectorAll('[id^="audioBtn"]');
+      for (var i = 0; i < audioButtons.length; i++) {
+        var audioIndex = "audio_" + i;
+        var audioButton = audioButtons[i];
+
+        audioButton.innerHTML = rowData[audioIndex];
+
+        if (rowData.chosen_audio == i) {
+          audioButton.style.backgroundColor = "blue";
+        } else {
+          audioButton.style.backgroundColor = "";
+        }
+      }
+
+      document.getElementById("volumeBar").value = rowData.vol;
+
+      // Hide all progress bars
+      for (var i = 0; i < progressBars.length; i++) {
+        progressBars[i].style.display = "none";
+      }
+
+      // Show progress bar for the current row
+      progressBars[row].style.display = "block";
+    }
+
+    function playPauseAudio() {
+      if (isPlaying) {
+        pauseAudio();
+      } else {
+        playAudio();
+      }
+    }
+
+function playAudio() {
+  var rowData = audioData[currentRow];
+  var audioIndex = "audio_" + rowData.chosen_audio;
+  var audioFile = "freesound/" + rowData[audioIndex];
+
+  var audio = new Audio(audioFile);
+  audio.addEventListener("loadedmetadata", function() {
+    var progressBar = progressBars[currentRow];
+    progressBar.max = audio.duration;
+
+    audio.addEventListener("timeupdate", function() {
+      progressBar.value = audio.currentTime;
+    });
+
+    audioElements[currentRow] = audio;
+    audio.volume = rowData.vol;
+
+    // Set the video timestamp to the start_time column
+    infoVideo.currentTime = rowData.start_time;
+
+    audio.play();
+    infoVideo.play();
+    isPlaying = true;
+    updatePlayPauseButton();
+  });
+
+  audio.addEventListener("ended", function() {
+    if (currentRow < audioData.length - 1) {
+      currentRow++;
+      displayRow(currentRow);
+      playAudio();
+    }
+  });
+
+  audio.load();
+}
+
+
+function pauseAudio() {
+  var audio = audioElements[currentRow];
+  if (audio) {
+    audio.pause();
+    updatePlayPauseButton();
+  }
+}
+
+
+    function stopAudio() {
+      var audio = audioElements[currentRow];
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        isPlaying = false;
+        updatePlayPauseButton();
+      }
+      toggleVideoPlayback();
+    }
+
+    function toggleVideoPlayback() {
+      if (infoVideo.paused) {
+        infoVideo.play();
+      } else {
+        infoVideo.pause();
+      }
+    }
+
+    document.getElementById("previousBtn").addEventListener("click", function() {
+      if (currentRow > 0) {
+        stopAudio();
+        currentRow--;
+        displayRow(currentRow);
+      }
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", function() {
+      if (currentRow < audioData.length - 1) {
+        stopAudio();
+        currentRow++;
+        displayRow(currentRow);
+      }
+    });
+
+   document.getElementById("playPauseBtn").addEventListener("click", function() {
+  if (isPlaying) {
+    pauseAudio();
+    infoVideo.pause();
+    isPlaying = false;
+  } else {
+    playAudio();
+    infoVideo.play();
+  }
+});
+
+
+    document.getElementById("volumeBar").addEventListener("input", function() {
+      var rowData = audioData[currentRow];
+      rowData.vol = parseFloat(this.value);
+      var audio = audioElements[currentRow];
+      if (audio) {
+        audio.volume = rowData.vol;
+      }
+    });
+
+    var audioButtons = document.querySelectorAll('[id^="audioBtn"]');
+    for (var i = 0; i < audioButtons.length; i++) {
+      var audioButton = audioButtons[i];
+      audioButton.addEventListener("click", function() {
+        var rowData = audioData[currentRow];
+        rowData.chosen_audio = parseInt(this.id.replace("audioBtn", ""));
+
+        var audioButtons = document.querySelectorAll('[id^="audioBtn"]');
+        for (var j = 0; j < audioButtons.length; j++) {
+          var audioButton = audioButtons[j];
+          if (j === rowData.chosen_audio) {
+            audioButton.style.backgroundColor = "blue";
+          } else {
+            audioButton.style.backgroundColor = "";
+          }
+        }
+      });
+    }
+
+    document.getElementById("exportBtn").addEventListener("click", function() {
+      var csv =Papa.unparse(audioData);
+      var csvData = new Blob([csv], { type: "text/csv" });
+      var csvUrl = URL.createObjectURL(csvData);
+
+      var link = document.createElement("a");
+      link.href = csvUrl;
+      link.download = "info_with_audio.csv";
+      link.click();
+    });
+
+    function createProgressBars() {
+      var progressBarContainer = document.getElementById("progressBars");
+      for (var i = 0; i < audioData.length; i++) {
+        var progressBar = document.createElement("progress");
+        progressBar.value = 0;
+        progressBar.max = 1;
+        progressBar.style.display = "none";
+        progressBarContainer.appendChild(progressBar);
+        progressBars.push(progressBar);
+      }
+    }
+
+    function updatePlayPauseButton() {
+      var playPauseButton = document.getElementById("playPauseBtn");
+      if (isPlaying) {
+        playPauseButton.innerHTML = "Play/Pause";
+      } else {
+        playPauseButton.innerHTML = "Play/Pause";
+      }
+    }
+
+    loadData();
+
+    // Get the video element
+    infoVideo = document.getElementById("infoVideo");
+
+    // Unmute the video for audio playback
+    infoVideo.muted = false;
+
+    // Toggle video playback when play/pause button is clicked
+
+    // Pause video when previous/next button is clicked
+    document.getElementById("previousBtn").addEventListener("click", function() {
+      stopAudio();
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", function() {
+      stopAudio();
+    });
+  </script>
+</body>
+</html>

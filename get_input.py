@@ -4,7 +4,6 @@ import json
 
 import openai
 import requests
-openai.api_key = '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'
 
 def call_chatgpt(prompt, model="gpt-3.5-turbo"):
     response = openai.ChatCompletion.create(
@@ -50,9 +49,6 @@ def extract_image_keywords(text):
     return matches
 
 def download_image(keyword, query):
-    headers = {
-        'Ocp-Apim-Subscription-Key': '683d609cf2714346b7271504a0bbb841'
-    }
     params = {
         'q': query,
         'count': 1,
@@ -81,11 +77,9 @@ def process_script(script_file):
     audio_text = '\n'.join([f'{index}. {item}' for index, item in enumerate(audio_list, start=1)])
     #chatgpt_output = call_chatgpt(audio_text)
     #parsed_output = parse_output(chatgpt_output)
-    parsed_output = ['Ancient Greeks moving across the ocean.', 'Ancient Greeks stabbing people with bronze swords.', 'Ancient Greeks bowing beneath temple.']
     
     for item in parsed_output:
         #cue = call_chatgpt(item)
-        cue = "[greek_warriors.png] moving left and right on top of [ocean.png]"
         image_keywords = extract_image_keywords(cue)
         for keyword in image_keywords:
             if not os.path.exists(keyword):
